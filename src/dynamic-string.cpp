@@ -12,6 +12,7 @@ bool string_init(DynamicString* string, std::size_t capacity) {
   }
   string->data = static_cast<char*>(ptr);
   string->size = 0;
+  string->capacity = capacity;
   return true;
 }
 
