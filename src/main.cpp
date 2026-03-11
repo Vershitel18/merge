@@ -33,7 +33,7 @@ bool readLine(DynamicString* string, FILE* file) {
 // Выводим строку из вершинки в stdout
 // Не используем std::printf() потому что строки не обязательно С - форматные
 bool versh_print(versh* versh, FILE* output) {
-  if (std::fwrite(versh->string.data, 1, versh->string.size, output) != versh->string.size) {
+  if (std::fwrite(versh->string.data, 1, versh->string.capacity, output) != versh->string.capacity) {
     std::perror("failed to write string");
     return false;
   }
@@ -43,7 +43,7 @@ bool versh_print(versh* versh, FILE* output) {
 // Читаем строку из файла и вставляем в кучу с проверкой сортировки файлов
 bool read_file_insert_heap(Heap* heap, versh* node, bool check_sort) {
   DynamicString string;
-  if (!string_init(&string, node->string.size)) {
+  if (!string_init(&string, node->string.capacity)) {
     std::fputs("failed to init string", stderr);
     return false;
   }
@@ -56,7 +56,7 @@ bool read_file_insert_heap(Heap* heap, versh* node, bool check_sort) {
       return false;
     }
     std::swap(node->string, string);
-    insertHeap(heap, node);
+    insert_heap(heap, node);
   } else {
     // Если не получилось прочитать файл вполне возможно, что это был и не файл
     // потому что std::fopen() может открыть и директорию и не вернуть nullptr
@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
     goto error_system;
   }
   Heap heap;
-  if (!heapInit(&heap, argc)) {
+  if (!heap_init(&heap, argc)) {
     std::perror("failed to initialize heap");
     is_ok = false;
     goto error_system;
@@ -98,34 +98,32 @@ int main(int argc, char** argv) {
     }
     versh node;
     if (!versh_init(&node, file)) {
-      std::perror("failed to init file");
+      std::perror("failed to init versh");
       is_ok = false;
       goto heap_clean;
     }
     if (!read_file_insert_heap(&heap, &node, false)) {
-      std::perror("failed to init file");
       is_ok = false;
       goto heap_clean;
     }
   }
 
   while (heap.size > 0) {
-    versh min = extractHeapMin(&heap);
+    versh min = extract_heap_min(&heap);
     if (!versh_print(&min, stdout)) {
       std::perror("failed to write min string");
       is_ok = false;
       goto heap_clean;
     }
     if (!read_file_insert_heap(&heap, &min, true)) {
-      std::perror("failed to init file");
       is_ok = false;
       goto heap_clean;
     }
   }
 
 heap_clean:
-  if (!heapDeinit(&heap)) {
-    std::fputs("failed to clean heap\n", stderr);
+  if (!heap_deinit(&heap)) {
+    std::perror("failed to clean heap\n");
     return EXIT_FAILURE;
   }
 error_system:

@@ -16,16 +16,14 @@ struct Heap {
   size_t size;
 };
 
-void siftUp(Heap* heap, size_t index);
+void sift_up(Heap* heap, size_t index);
 
-void siftDown(Heap* heap, size_t id);
+void sift_down(Heap* heap, size_t id);
 
-void insertHeap(Heap* heap, versh* versh);
+void insert_heap(Heap* heap, versh* versh);
 
-[[nodiscard]] bool insertVersh(versh* current, DynamicString* next);
+[[nodiscard]] bool heap_init(Heap* heap, size_t size);
 
-[[nodiscard]] bool heapInit(Heap* heap, size_t size);
+[[nodiscard]] bool heap_deinit(Heap* heap);
 
-[[nodiscard]] bool heapDeinit(Heap* heap);
-
-[[nodiscard]] versh extractHeapMin(Heap* heap);
+[[nodiscard]] versh extract_heap_min(Heap* heap);

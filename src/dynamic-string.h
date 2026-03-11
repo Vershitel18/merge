@@ -5,8 +5,8 @@
 
 struct DynamicString {
   char* data;
-  std::size_t size;
   std::size_t capacity;
+  std::size_t size;
 };
 
 [[nodiscard]] bool string_init(DynamicString* string, std::size_t capacity);
@@ -17,5 +17,3 @@ void string_free(DynamicString* string);
 bool string_clear(DynamicString* string);
 
 int string_compare(DynamicString* a, DynamicString* b);
-
-bool string_copy(DynamicString* dest, DynamicString* src);
