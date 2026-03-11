@@ -1,16 +1,17 @@
 #include "dynamic-string.h"
-#include<cstring>
+
+#include <algorithm>
 #include <cstdlib>
-#include "algorithm"
+#include <cstring>
 
 bool string_init(DynamicString* string, std::size_t capacity) {
   string->capacity = 10; // TODO: constant, actually
-  void *ptr = std::malloc(sizeof(*string->data) * string->capacity);
+  void* ptr = std::malloc(sizeof(*string->data) * string->capacity);
   if (ptr == nullptr) {
     string->data = nullptr;
     return false;
   }
-  string->data = static_cast<char *>(ptr);
+  string->data = static_cast<char*>(ptr);
   string->size = 0;
   return true;
 }
@@ -22,9 +23,13 @@ void string_free(DynamicString* string) {
 bool string_push_back(DynamicString* string, char ch) {
   if (string->size >= string->capacity) {
     size_t new_capacity = string->capacity * 2;
-    if (new_capacity == 0) new_capacity = 1;
+    if (new_capacity == 0) {
+      new_capacity = 1;
+    }
     char* new_buf = static_cast<char*>(std::realloc(string->data, new_capacity * sizeof(char)));
-    if (!new_buf) return false;
+    if (!new_buf) {
+      return false;
+    }
     string->data = new_buf;
     string->capacity = new_capacity;
   }
@@ -42,7 +47,9 @@ bool string_clear(DynamicString* string) {
 int string_compare(DynamicString* a, DynamicString* b) {
   int cmp = std::memcmp(a->data, b->data, std::min(a->size, b->size));
   // функция побитового сравнения любых! строк
-  if (cmp != 0) return cmp;
+  if (cmp != 0) {
+    return cmp;
+  }
   if (a->size < b->size) {
     return -1;
   }
@@ -55,7 +62,9 @@ int string_compare(DynamicString* a, DynamicString* b) {
 bool string_copy(DynamicString* dest, DynamicString* src) {
   if (dest->capacity < src->size) {
     char* new_buf = static_cast<char*>(std::realloc(dest->data, src->size));
-    if (!new_buf) return false;
+    if (!new_buf) {
+      return false;
+    }
     dest->data = new_buf;
     dest->capacity = src->size;
   }
@@ -64,5 +73,3 @@ bool string_copy(DynamicString* dest, DynamicString* src) {
   dest->size = src->size;
   return true;
 }
-
-

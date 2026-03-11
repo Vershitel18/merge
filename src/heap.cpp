@@ -1,15 +1,14 @@
 #include "heap.h"
-#include<algorithm>
-#include "dynamic-string.h"
-#include<cstdlib>
-#include<cstring>
 
-void siftUp(Heap *heap, size_t index) {
-  while (index > 0 &&
-         string_compare(&heap->array[index].string, &heap->array[(index - 1) / 2].string) < 0) {
+#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+
+void siftUp(Heap* heap, size_t index) {
+  while (index > 0 && string_compare(&heap->array[index].string, &heap->array[(index - 1) / 2].string) < 0) {
     std::swap(heap->array[index], heap->array[(index - 1) / 2]);
     index = (index - 1) / 2;
-         }
+  }
 }
 
 void siftDown(Heap* heap, size_t id) {
@@ -17,10 +16,9 @@ void siftDown(Heap* heap, size_t id) {
     size_t child = 2 * id + 1;
 
     // выбрать меньшего из двух детей
-    if (child + 1 < heap->size &&
-        string_compare(&heap->array[child + 1].string, &heap->array[child].string) < 0) {
+    if (child + 1 < heap->size && string_compare(&heap->array[child + 1].string, &heap->array[child].string) < 0) {
       child++;
-        }
+    }
 
     // если родитель больше выбранного ребенка, меняем местами
     if (string_compare(&heap->array[child].string, &heap->array[id].string) < 0) {
@@ -32,7 +30,7 @@ void siftDown(Heap* heap, size_t id) {
   }
 }
 
-versh extractHeapMin(Heap *heap) {
+versh extractHeapMin(Heap* heap) {
   versh min = heap->array[0];
   heap->size--;
   if (heap->size > 0) {
@@ -43,31 +41,31 @@ versh extractHeapMin(Heap *heap) {
 }
 
 void insertHeap(Heap* heap, versh* node) {
-    heap->array[heap->size] = *node;
-    heap->size++;
-    siftUp(heap, heap->size - 1);
+  heap->array[heap->size] = *node;
+  heap->size++;
+  siftUp(heap, heap->size - 1);
 }
 
-bool heapInit(Heap* heap,  std::size_t size) {
-    heap->size = 0;
-    void *ptr = std::malloc(sizeof(*heap->array) * size);
-    if (ptr == nullptr) {
-        std::free(heap->array);
-        return false;
-    }
-    heap->array = static_cast<versh *>(ptr);
-    return true;
+bool heapInit(Heap* heap, std::size_t size) {
+  heap->size = 0;
+  void* ptr = std::malloc(sizeof(*heap->array) * size);
+  if (ptr == nullptr) {
+    std::free(heap->array);
+    return false;
+  }
+  heap->array = static_cast<versh*>(ptr);
+  return true;
 }
 
-bool heapDeinit(Heap *heap) {
+bool heapDeinit(Heap* heap) {
   for (size_t i = 0; i < heap->size; i++) {
     versh node = extractHeapMin(heap);
     if (!versh_free(&node)) {
       return false;
     }
   }
-    std::free(heap->array);
-    return true;
+  std::free(heap->array);
+  return true;
 }
 
 bool versh_free(versh* versh) {
