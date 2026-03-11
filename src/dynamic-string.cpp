@@ -5,8 +5,7 @@
 #include <cstring>
 
 bool string_init(DynamicString* string, std::size_t capacity) {
-  string->capacity = 10; // TODO: constant, actually
-  void* ptr = std::malloc(sizeof(*string->data) * string->capacity);
+  void* ptr = std::malloc(sizeof(*string->data) * capacity);
   if (ptr == nullptr) {
     string->data = nullptr;
     return false;
