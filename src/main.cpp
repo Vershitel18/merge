@@ -51,7 +51,8 @@ bool read_file_insert_heap(Heap* heap, HeapNode* node, bool check_sort) {
   if (readLine(&string, node->file)) {
     // Смотрим нужно ли проверять на сортировку
     if (check_sort && string_compare(&string, &node->string) < 0) {
-      std::fputs(node->file_name, stderr); std::fputs("file not sorted\n", stderr);
+      std::fputs(node->file_name, stderr);
+      std::fputs("file not sorted\n", stderr);
       string_free(&string);
       return false;
     }
@@ -61,7 +62,8 @@ bool read_file_insert_heap(Heap* heap, HeapNode* node, bool check_sort) {
     // Если не получилось прочитать файл вполне возможно, что это был и не файл
     // потому что std::fopen() может открыть и директорию и не вернуть nullptr
     if (std::ferror(node->file) != 0) {
-      std::fputs(node->file_name, stderr); std::perror("error reading file");
+      std::fputs(node->file_name, stderr);
+      std::perror("error reading file");
       return false;
     }
     // Почистили вершинку, если не получилось прочитать
@@ -92,7 +94,8 @@ int main(int argc, char** argv) {
   for (size_t i = 1; i < static_cast<size_t>(argc); i++) {
     FILE* file = fopen(argv[i], "rb");
     if (file == nullptr) {
-      std::fputs(argv[i], stderr); std::perror("failed to open file:");
+      std::fputs(argv[i], stderr);
+      std::perror("failed to open file:");
       is_ok = false;
       goto heap_clean;
     }
