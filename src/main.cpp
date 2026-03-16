@@ -18,7 +18,7 @@ bool readLine(DynamicString* string, FILE* file) {
     if (ch == '\r') {
       int next = std::fgetc(file);
       if (next != '\n' && next != EOF) {
-        ungetc(next, file);
+        std::ungetc(next, file);
       }
       break;
     }
@@ -32,8 +32,8 @@ bool readLine(DynamicString* string, FILE* file) {
 
 // Выводим строку из вершинки в stdout
 // Не используем std::printf() потому что строки не обязательно С - форматные
-bool versh_print(versh* versh, FILE* output) {
-  if (std::fwrite(versh->string.data, 1, versh->string.capacity, output) != versh->string.capacity) {
+bool versh_print(HeapNode* versh, FILE* output) {
+  if (std::fwrite(versh->string.data, 1, versh->string.size, output) != versh->string.size) {
     std::perror("failed to write string");
     return false;
   }
@@ -41,17 +41,17 @@ bool versh_print(versh* versh, FILE* output) {
 }
 
 // Читаем строку из файла и вставляем в кучу с проверкой сортировки файлов
-bool read_file_insert_heap(Heap* heap, versh* node, bool check_sort) {
+bool read_file_insert_heap(Heap* heap, HeapNode* node, bool check_sort) {
   DynamicString string;
-  if (!string_init(&string, node->string.capacity)) {
-    std::fputs("failed to init string", stderr);
+  if (!string_init(&string, node->string.size)) {
+    std::fputs("failed to init string\n", stderr);
     return false;
   }
 
   if (readLine(&string, node->file)) {
     // Смотрим нужно ли проверять на сортировку
     if (check_sort && string_compare(&string, &node->string) < 0) {
-      std::fputs("file not sorted\n", stderr);
+      std::fputs(node->file_name, stderr); std::fputs("file not sorted\n", stderr);
       string_free(&string);
       return false;
     }
@@ -61,11 +61,11 @@ bool read_file_insert_heap(Heap* heap, versh* node, bool check_sort) {
     // Если не получилось прочитать файл вполне возможно, что это был и не файл
     // потому что std::fopen() может открыть и директорию и не вернуть nullptr
     if (std::ferror(node->file) != 0) {
-      std::perror("error reading file");
+      std::fputs(node->file_name, stderr); std::perror("error reading file");
       return false;
     }
     // Почистили вершинку, если не получилось прочитать
-    if (!versh_free(node)) {
+    if (!node_free(node)) {
       std::perror("failed to free node");
       string_free(&string);
       return false;
@@ -78,7 +78,7 @@ bool read_file_insert_heap(Heap* heap, versh* node, bool check_sort) {
 int main(int argc, char** argv) {
   bool is_ok = true;
   if (argc < 2) {
-    std::perror("provide exactly one file\n");
+    std::fputs("provide exactly one file\n", stderr);
     is_ok = false;
     goto error_system;
   }
@@ -92,13 +92,13 @@ int main(int argc, char** argv) {
   for (size_t i = 1; i < static_cast<size_t>(argc); i++) {
     FILE* file = fopen(argv[i], "rb");
     if (file == nullptr) {
-      std::perror("failed to open file");
+      std::fputs(argv[i], stderr); std::perror("failed to open file:");
       is_ok = false;
       goto heap_clean;
     }
-    versh node;
-    if (!versh_init(&node, file)) {
-      std::perror("failed to init versh");
+    HeapNode node;
+    if (!node_init(&node, file, argv[i])) {
+      std::perror("failed to init HeapNode");
       is_ok = false;
       goto heap_clean;
     }
@@ -109,9 +109,9 @@ int main(int argc, char** argv) {
   }
 
   while (heap.size > 0) {
-    versh min = extract_heap_min(&heap);
+    HeapNode min = extract_heap_min(&heap);
     if (!versh_print(&min, stdout)) {
-      std::perror("failed to write min string");
+      std::fputs("failed to write min string\n", stderr);
       is_ok = false;
       goto heap_clean;
     }
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 
 heap_clean:
   if (!heap_deinit(&heap)) {
-    std::perror("failed to clean heap\n");
+    std::fputs("failed to clean heap\n", stderr);
     return EXIT_FAILURE;
   }
 error_system:

@@ -5,8 +5,8 @@
 
 struct DynamicString {
   char* data;
-  std::size_t capacity;
   std::size_t size;
+  std::size_t capasity;
 };
 
 [[nodiscard]] bool string_init(DynamicString* string, std::size_t capacity);

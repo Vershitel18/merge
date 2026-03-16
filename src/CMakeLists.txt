@@ -1,15 +1,15 @@
-cmake_minimum_required(VERSION 3.25)
+
 project(merge-nikoly_vologdin LANGUAGES C CXX)
 
-add_executable(merge
-        heap.cpp
-)
+add_executable(merge)
 
 target_sources(merge
     PRIVATE
         "main.cpp"
         "dynamic-string.cpp"
+        "heap.cpp"
     PUBLIC FILE_SET HEADERS FILES
+        "heap.h"
         "dynamic-string.h"
 )
 

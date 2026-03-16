@@ -27,8 +27,8 @@ void sift_down(Heap* heap, size_t id) {
   }
 }
 
-versh extract_heap_min(Heap* heap) {
-  versh min = heap->array[0];
+HeapNode extract_heap_min(Heap* heap) {
+  HeapNode min = heap->array[0];
   heap->size--;
   if (heap->size > 0) {
     heap->array[0] = heap->array[heap->size];
@@ -37,7 +37,7 @@ versh extract_heap_min(Heap* heap) {
   return min;
 }
 
-void insert_heap(Heap* heap, versh* node) {
+void insert_heap(Heap* heap, HeapNode* node) {
   heap->array[heap->size] = *node;
   heap->size++;
   sift_up(heap, heap->size - 1);
@@ -45,36 +45,38 @@ void insert_heap(Heap* heap, versh* node) {
 
 bool heap_init(Heap* heap, std::size_t size) {
   heap->size = 0;
-  void* ptr = std::malloc(sizeof(*heap->array) * size);
+  void* ptr = std::malloc(sizeof(HeapNode) * size);
   if (ptr == nullptr) {
-    std::free(heap->array);
     return false;
   }
-  heap->array = static_cast<versh*>(ptr);
+  heap->array = static_cast<HeapNode*>(ptr);
   return true;
 }
 
 bool heap_deinit(Heap* heap) {
+  bool is_ok = true;
   for (size_t i = 0; i < heap->size; i++) {
-    versh node = extract_heap_min(heap);
-    if (!versh_free(&node)) {
-      return false;
+    HeapNode node = extract_heap_min(heap);
+    if (!node_free(&node)) {
+      is_ok = false;
     }
   }
   std::free(heap->array);
-  return true;
+  return is_ok;
 }
 
-bool versh_free(versh* versh) {
-  string_free(&versh->string);
-  if (fclose(versh->file) != 0) {
-    std::perror("failed flose file");
+bool node_free(HeapNode* node) {
+  string_free(&node->string);
+  if (fclose(node->file) != 0) {
+    std:: fputs(node->file_name, stderr); std::perror("failed flose file");
     return false;
   }
+  node->file_name = nullptr;
   return true;
 }
 
-bool versh_init(versh* versh, FILE* file) {
-  versh->file = file;
-  return string_init(&versh->string, 1);
+bool node_init(HeapNode* node, FILE* file, char* file_name) {
+  node->file_name = file_name;
+  node->file = file;
+  return string_init(&node->string, 1);
 }
