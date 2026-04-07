@@ -24,6 +24,7 @@ compile_commands.json
 *.dylib
 *.dll
 *.exe
+*.s
 
 # Python
 .venv/

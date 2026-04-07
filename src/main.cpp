@@ -32,8 +32,8 @@ bool readLine(DynamicString* string, FILE* file) {
 
 // Выводим строку из вершинки в stdout
 // Не используем std::printf() потому что строки не обязательно С - форматные
-bool versh_print(HeapNode* versh, FILE* output) {
-  if (std::fwrite(versh->string.data, 1, versh->string.size, output) != versh->string.size) {
+bool node_print(HeapNode* node, FILE* output) {
+  if (std::fwrite(node->string.data, 1, node->string.size, output) != node->string.size) {
     std::perror("failed to write string");
     return false;
   }
@@ -51,8 +51,7 @@ bool read_file_insert_heap(Heap* heap, HeapNode* node, bool check_sort) {
   if (readLine(&string, node->file)) {
     // Смотрим нужно ли проверять на сортировку
     if (check_sort && string_compare(&string, &node->string) < 0) {
-      std::fputs(node->file_name, stderr);
-      std::fputs("file not sorted\n", stderr);
+      std::fprintf(stderr, "file not sorted: %s\n", node->file_name);
       string_free(&string);
       return false;
     }
@@ -62,8 +61,7 @@ bool read_file_insert_heap(Heap* heap, HeapNode* node, bool check_sort) {
     // Если не получилось прочитать файл вполне возможно, что это был и не файл
     // потому что std::fopen() может открыть и директорию и не вернуть nullptr
     if (std::ferror(node->file) != 0) {
-      std::fputs(node->file_name, stderr);
-      std::perror("error reading file");
+      std::fprintf(stderr, "error reading file: %s\n", node->file_name);
       return false;
     }
     // Почистили вершинку, если не получилось прочитать
@@ -94,8 +92,7 @@ int main(int argc, char** argv) {
   for (size_t i = 1; i < static_cast<size_t>(argc); i++) {
     FILE* file = fopen(argv[i], "rb");
     if (file == nullptr) {
-      std::fputs(argv[i], stderr);
-      std::perror("failed to open file:");
+      std::fprintf(stderr, "filed to open file: %s\n", argv[i]);
       is_ok = false;
       goto heap_clean;
     }
@@ -113,7 +110,7 @@ int main(int argc, char** argv) {
 
   while (heap.size > 0) {
     HeapNode min = extract_heap_min(&heap);
-    if (!versh_print(&min, stdout)) {
+    if (!node_print(&min, stdout)) {
       std::fputs("failed to write min string\n", stderr);
       is_ok = false;
       goto heap_clean;

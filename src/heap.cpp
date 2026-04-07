@@ -68,8 +68,7 @@ bool heap_deinit(Heap* heap) {
 bool node_free(HeapNode* node) {
   string_free(&node->string);
   if (fclose(node->file) != 0) {
-    std::fputs(node->file_name, stderr);
-    std::perror("failed flose file");
+    std::fprintf(stderr, "filed flose file: %s/n", node->file_name);
     return false;
   }
   node->file_name = nullptr;
